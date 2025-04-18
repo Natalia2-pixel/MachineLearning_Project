@@ -91,7 +91,8 @@ def apply_watermark_dl_model(cover_image, watermark_image=None, model_type="CNN"
     ssim_score = ssim(blended_gt, predicted, data_range=1.0)
 
     return Image.fromarray((predicted * 255).astype(np.uint8)), {"mse": mse, "psnr": psnr, "ssim": ssim_score}
-
+    
+#Wrapper function
 def apply_watermark_with_model(model, cover_image, custom_watermark_img=None):
     if cover_image is None:
         raise ValueError("Cover image is missing. Please upload one.")
