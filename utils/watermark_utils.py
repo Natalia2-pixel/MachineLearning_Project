@@ -1,17 +1,12 @@
-""import numpy as np
+import numpy as np
 from PIL import Image
 from skimage.metrics import structural_similarity as ssim
 import joblib
 import tensorflow as tf
-from model_loader import set_models, apply_watermark_with_model
+from model_loader import load_models
 
-svm_model = gbm_model = pca_x = pca_y = cnn_model = xception_model = cgan_generator = None
-
-def set_models(svm, gbm, px, py, cnn, xception, gan):
-    global svm_model, gbm_model, pca_x, pca_y, cnn_model, xception_model, cgan_generator
-    svm_model, gbm_model, pca_x, pca_y = svm, gbm, px, py
-    cnn_model, xception_model, cgan_generator = cnn, xception, gan
-
+# Load all models using the cached loader (no Streamlit UI in this file)
+svm_model, gbm_model, pca_x, pca_y, cnn_model, xception_model, cgan_generator = load_models()
 
 def apply_watermark_ml_model(cover_image, watermark_image=None, model_type="SVM", alpha=0.3):
     if cover_image is None:
