@@ -3,8 +3,6 @@ from PIL import Image
 from skimage.metrics import structural_similarity as ssim
 import joblib
 import tensorflow as tf
-from model_loader import load_models
-
 import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
