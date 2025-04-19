@@ -3,7 +3,7 @@ from PIL import Image
 from skimage.metrics import structural_similarity as ssim
 import joblib
 import tensorflow as tf
-from ..model_loader import load_models
+from model_loader import load_models
 
 # Load all models using the cached loader (no Streamlit UI in this file)
 svm_model, gbm_model, pca_x, pca_y, cnn_model, xception_model, cgan_generator = load_models()
