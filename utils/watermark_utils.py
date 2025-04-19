@@ -5,6 +5,13 @@ import joblib
 import tensorflow as tf
 from model_loader import load_models
 
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
+from model_loader import load_models
+
+
 # Load all models using the cached loader (no Streamlit UI in this file)
 svm_model, gbm_model, pca_x, pca_y, cnn_model, xception_model, cgan_generator = load_models()
 
