@@ -2,35 +2,35 @@ import numpy as np
 from PIL import Image
 from skimage.metrics import structural_similarity as ssim
 import tensorflow as tf
-from model_loader import load_models
 
-# Load all models once at the start using the cached loader
-svm_model, gbm_model, pca_x, pca_y, cnn_model, xception_model, cgan_generator = load_models()
+# These will be set from streamapp.py
+svm_model = gbm_model = pca_x = pca_y = cnn_model = xception_model = cgan_generator = None
+
+def set_models(svm, gbm, px, py, cnn, xcep, gan):
+    global svm_model, gbm_model, pca_x, pca_y, cnn_model, xception_model, cgan_generator
+    svm_model, gbm_model, pca_x, pca_y = svm, gbm, px, py
+    cnn_model, xception_model, cgan_generator = cnn, xcep, gan
 
 def apply_watermark_ml_model(cover_image, watermark_image=None, model_type="SVM", alpha=0.3):
     if cover_image is None:
         raise ValueError("Cover image is missing.")
-    
     if watermark_image is None:
         watermark_image = Image.new("L", (64, 64), color=0)
 
-    # Convert images to grayscale and resize
     cover = cover_image.convert("L").resize((64, 64))
     mark = watermark_image.convert("L").resize((64, 64))
 
-    # Normalize
     cover_np = np.array(cover, dtype=np.float32) / 255.0
     mark_np = np.array(mark, dtype=np.float32) / 255.0
-    blended_gt = (1 - alpha) * cover_np + alpha * mark_np
 
-    # Flatten and apply PCA
+    blended_gt = (1 - alpha) * cover_np + alpha * mark_np
     input_vec = np.hstack([cover_np.flatten(), mark_np.flatten()])
+
     if input_vec.shape[0] != pca_x.components_.shape[1]:
         raise ValueError(f"Input vector length mismatch for PCA: {input_vec.shape[0]}")
-    
+
     reduced_input = pca_x.transform([input_vec])
 
-    # Prediction
     if model_type == "SVM":
         predicted = svm_model.predict(reduced_input)
     elif model_type == "GBM":
@@ -38,11 +38,9 @@ def apply_watermark_ml_model(cover_image, watermark_image=None, model_type="SVM"
     else:
         raise ValueError("Unknown ML model type")
 
-    # Reconstruction
     reconstructed = pca_y.inverse_transform(predicted)[0]
     predicted_image = reconstructed.reshape(64, 64)
 
-    # Evaluation
     mse = np.mean((blended_gt - predicted_image) ** 2)
     psnr = 10 * np.log10(1.0 / mse)
     ssim_score = ssim(blended_gt, predicted_image, data_range=1.0)
@@ -54,18 +52,16 @@ def apply_watermark_ml_model(cover_image, watermark_image=None, model_type="SVM"
 def apply_watermark_dl_model(cover_image, watermark_image=None, model_type="CNN", alpha=0.3):
     if cover_image is None:
         raise ValueError("Cover image is missing.")
-    
     if watermark_image is None:
         watermark_image = Image.new("L", (64, 64), color=0)
 
-    # Preprocessing
     cover = cover_image.convert("L").resize((64, 64))
     mark = watermark_image.convert("L").resize((64, 64))
+
     cover_np = np.array(cover, dtype=np.float32) / 255.0
     mark_np = np.array(mark, dtype=np.float32) / 255.0
     blended_gt = (1 - alpha) * cover_np + alpha * mark_np
 
-    # Prediction
     if model_type == "CNN":
         stacked = np.stack([cover_np, mark_np], axis=-1)
         input_tensor = np.expand_dims(stacked, axis=0)
@@ -86,7 +82,6 @@ def apply_watermark_dl_model(cover_image, watermark_image=None, model_type="CNN"
     else:
         raise ValueError("Unsupported DL model selected")
 
-    # Evaluation
     mse = np.mean((blended_gt - predicted) ** 2)
     psnr = 10 * np.log10(1.0 / mse)
     ssim_score = ssim(blended_gt, predicted, data_range=1.0)
