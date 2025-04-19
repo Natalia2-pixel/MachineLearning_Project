@@ -4,8 +4,8 @@ import tensorflow as tf
 from PIL import Image, ImageDraw, ImageFont
 from io import BytesIO
 
-from watermark_utils import apply_watermark_with_model
-from model_loader import load_models, set_models
+from watermark_utils import apply_watermark_with_model,set_models
+from model_loader import load_models
 
 # Set page configuration FIRST
 st.set_page_config(page_title="🔐 Watermark ML/DL App", layout="centered")
