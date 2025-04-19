@@ -3,15 +3,19 @@ from PIL import Image
 from skimage.metrics import structural_similarity as ssim
 import joblib
 import tensorflow as tf
-import sys
+import importlib.util
 import os
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+import sys
 
-from model_loader import load_models
+#Dynamically import model_loader regardless of runtime environment
+module_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'model_loader.py'))
+spec = importlib.util.spec_from_file_location("model_loader", module_path)
+model_loader = importlib.util.module_from_spec(spec)
+sys.modules["model_loader"] = model_loader
+spec.loader.exec_module(model_loader)
 
-
-# Load all models using the cached loader (no Streamlit UI in this file)
-svm_model, gbm_model, pca_x, pca_y, cnn_model, xception_model, cgan_generator = load_models()
+#Load all models
+svm_model, gbm_model, pca_x, pca_y, cnn_model, xception_model, cgan_generator = model_loader.load_models()
 
 def apply_watermark_ml_model(cover_image, watermark_image=None, model_type="SVM", alpha=0.3):
     if cover_image is None:
