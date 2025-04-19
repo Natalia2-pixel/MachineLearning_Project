@@ -7,7 +7,7 @@ from functools import lru_cache
 
 @lru_cache(maxsize=1)
 def download_and_extract_models_from_drive(file_id):
-    output_zip = "models.zip"
+    output_zip = "Models.zip"
     extract_to = "Models"
 
     if not os.path.exists(extract_to):
