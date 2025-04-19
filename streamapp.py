@@ -1,10 +1,22 @@
 import streamlit as st
 import numpy as np
+import tensorflow as tf
 from PIL import Image, ImageDraw, ImageFont
 from io import BytesIO
-from utils.watermark_utils import apply_watermark_with_model, set_models
-from model_loader import load_models
+import joblib
+from model_loader import apply_watermark_with_model, set_models
 
+# Load models at the start
+svm = joblib.load("Models/svm_model.pkl")
+gbm = joblib.load("Models/gbm_model.pkl")
+pca_x = joblib.load("Models/pca_x.pkl")
+pca_y = joblib.load("Models/pca_y.pkl")
+cnn = tf.keras.models.load_model("Models/cnn_model.h5", compile=False)
+xception = tf.keras.models.load_model("Models/xception_model.h5", compile=False)
+gan = tf.keras.models.load_model("Models/cgan_generator_model.h5", compile=False)
+
+# Set global models for watermarking
+set_models(svm, gbm, pca_x, pca_y, cnn, xception, gan)
 
 
 # Set page configuration first
