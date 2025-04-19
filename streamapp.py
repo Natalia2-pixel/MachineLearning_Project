@@ -2,10 +2,15 @@ import streamlit as st
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 from io import BytesIO
-from utils.watermark_utils import apply_watermark_with_model
+from utils.watermark_utils import apply_watermark_with_model, initialize_models
+
 
 # Set page configuration first
 st.set_page_config(page_title="🔐 Watermark ML/DL App", layout="centered")
+
+# Load all models
+with st.spinner("Loading models..."):
+    initialize_models()
 
 # App Title and Intro
 st.title("Multi-Technique Watermarking System")
