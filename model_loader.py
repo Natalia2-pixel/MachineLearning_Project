@@ -6,12 +6,12 @@ from functools import lru_cache
 
 # Dictionary of model file names and their raw GitHub URLs
 model_files = {
-    "svm_model": "https://github.com/Natalia2-pixel/Test_ML/raw/main/svm_model.pkl",
-    "gbm_model": "https://github.com/Natalia2-pixel/Test_ML/raw/main/gbm_model.pkl",
-    "pca_x": "https://github.com/Natalia2-pixel/Test_ML/raw/main/pca_x.pkl",
-    "pca_y": "https://github.com/Natalia2-pixel/Test_ML/raw/main/pca_y.pkl",
-    "cnn_model": "https://github.com/Natalia2-pixel/Test_ML/raw/main/cnn_model.h5",
-    "cgan_generator_model": "https://github.com/Natalia2-pixel/Test_ML/raw/main/cgan_generator_model.h5",
+    "svm_model": "https://github.com/Natalia2-pixel/MachineLearning_Project/raw/main/svm_model.pkl",
+    "gbm_model": "https://github.com/Natalia2-pixel/MachineLearning_Project/raw/main/gbm_model.pkl",
+    "pca_x": "https://github.com/Natalia2-pixel/MachineLearning_Project/raw/main/pca_x.pkl",
+    "pca_y": "https://github.com/Natalia2-pixel/MachineLearning_Project/raw/main/pca_y.pkl",
+    "cnn_model": "https://github.com/Natalia2-pixel/MachineLearning_Project/raw/main/cnn_model.h5",
+    "cgan_generator_model": "https://github.com/Natalia2-pixel/MachineLearning_Project/raw/main/cgan_generator_model.h5",
 }
 
 def download_model_file(name, url, dest_folder="."):
