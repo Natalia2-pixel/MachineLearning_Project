@@ -16,7 +16,7 @@ model_files = {
 
 def download_model_file(name, url, dest_folder="."):
     os.makedirs(dest_folder, exist_ok=True)
-    file_path = os.path.join(dest_folder, os.path.basename(url))
+    file_path = os.path.basename(url)
 
     if not os.path.exists(file_path):
         print(f"Downloading {name}...")
