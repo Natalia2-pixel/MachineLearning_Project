@@ -40,7 +40,7 @@ if uploaded_file:
             overlay_preview = cover_image.copy().convert("RGB")
             draw_overlay = ImageDraw.Draw(overlay_preview)
             draw_overlay.text((10, 25), watermark_text, fill=(255, 0, 0), font=font)
-            st.image(overlay_preview, caption="Preview: Text Watermark on Cover", use_column_width=True)
+            st.image(overlay_preview, caption="Preview: Text Watermark on Cover", use_container_width=True)
 
 # Apply Watermark Button
 if uploaded_file and st.button("🚀 Apply Watermark"):
@@ -57,7 +57,7 @@ if uploaded_file and st.button("🚀 Apply Watermark"):
 
             # Display the watermarked result
             st.subheader("Watermarked Image")
-            st.image(watermarked_img, caption=f"Watermarked using {model_choice}", use_column_width=True)
+            st.image(watermarked_img, caption=f"Watermarked using {model_choice}", use_container_width=True)
 
             # Download Button
             buf = BytesIO()
