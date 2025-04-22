@@ -27,7 +27,7 @@ custom_watermark = None
 
 if uploaded_file:
     cover_image = Image.open(uploaded_file).convert("RGB")
-    st.image(cover_image, caption="Uploaded Cover Image", use_column_width=True)
+    st.image(cover_image, caption="Uploaded Cover Image", use_container_width=True)
 
     if mode == "Custom Watermark":
         watermark_text = st.text_input("Enter Watermark Text", max_chars=20)
