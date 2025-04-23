@@ -1,11 +1,12 @@
 import numpy as np
 from PIL import Image
 from skimage.metrics import structural_similarity as ssim
+from skimage import exposure
 import tensorflow as tf
 from model_loader import load_models
 
 # Load all models using the cached loader (no Streamlit UI in this file)
-svm_model, gbm_model, pca_x, pca_y, cnn_model, cgan_generator = load_models()
+svm_model, gbm_model, pca_x, pca_y, scaler_x, scaler_y, cnn_model, cgan_generator = load_models()
 
 def apply_watermark_ml_model(cover_image, watermark_image=None, model_type="SVM", alpha=0.3):
     if cover_image is None:
@@ -25,7 +26,9 @@ def apply_watermark_ml_model(cover_image, watermark_image=None, model_type="SVM"
     if input_vec.shape[0] != pca_x.components_.shape[1]:
         raise ValueError(f"Input vector length mismatch for PCA: {input_vec.shape[0]}")
 
-    reduced_input = pca_x.transform([input_vec])
+    # Apply scaler and PCA as done in training
+    scaled_input = scaler_x.transform([input_vec])
+    reduced_input = pca_x.transform(scaled_input)
 
     if model_type == "SVM":
         predicted = svm_model.predict(reduced_input)
@@ -34,15 +37,28 @@ def apply_watermark_ml_model(cover_image, watermark_image=None, model_type="SVM"
     else:
         raise ValueError("Unknown ML model type")
 
-    reconstructed = pca_y.inverse_transform(predicted)[0]
+    # Inverse PCA and scaler for output
+    output_scaled = pca_y.inverse_transform(predicted)
+    reconstructed = scaler_y.inverse_transform(output_scaled)[0]
+
     predicted_image = reconstructed.reshape(64, 64)
 
     mse = np.mean((blended_gt - predicted_image) ** 2)
     psnr = 10 * np.log10(1.0 / mse)
     ssim_score = ssim(blended_gt, predicted_image, data_range=1.0)
 
-    return Image.fromarray((predicted_image * 255).astype(np.uint8)), {
-        "mse": mse, "psnr": psnr, "ssim": ssim_score
+    # Normalize output image for better visualization
+    norm_img = (predicted_image - predicted_image.min()) / (predicted_image.max() - predicted_image.min() + 1e-8)
+    output_img = Image.fromarray((norm_img * 255).astype(np.uint8))
+
+    # Also return blended_gt for visualization
+    blended_img = Image.fromarray((blended_gt * 255).astype(np.uint8))
+
+    return output_img, {
+        "mse": mse,
+        "psnr": psnr,
+        "ssim": ssim_score,
+        "blended_gt": blended_img
     }
 
 def apply_watermark_dl_model(cover_image, watermark_image=None, model_type="CNN", alpha=0.3):
@@ -75,8 +91,17 @@ def apply_watermark_dl_model(cover_image, watermark_image=None, model_type="CNN"
     psnr = 10 * np.log10(1.0 / mse)
     ssim_score = ssim(blended_gt, predicted, data_range=1.0)
 
-    return Image.fromarray((predicted * 255).astype(np.uint8)), {
-        "mse": mse, "psnr": psnr, "ssim": ssim_score
+    # Normalize for better visibility
+    norm_img = (predicted - predicted.min()) / (predicted.max() - predicted.min() + 1e-8)
+    output_img = Image.fromarray((norm_img * 255).astype(np.uint8))
+
+    blended_img = Image.fromarray((blended_gt * 255).astype(np.uint8))
+
+    return output_img, {
+        "mse": mse,
+        "psnr": psnr,
+        "ssim": ssim_score,
+        "blended_gt": blended_img
     }
 
 def apply_watermark_with_model(model, cover_image, custom_watermark_img=None):
